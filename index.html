@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Kamera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .main-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 500px;
+            max-height: 80vh;
+        }
+
+        #asciiCanvas {
+            background-color: #000;
+            color: #00ff00;
+            padding: 10px;
+            overflow: hidden;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            font-size: 7px;
+            border: 1px solid #00ff00;
+            flex: 1;
+            white-space: pre;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 4 / 3;
+        }
+
+        .hidden-elements {
+            display: none;
+        }
+
+        .controls-panel {
+            width: 280px;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border: 1px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #00ff00;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            cursor: pointer;
+            border: 1px solid #00ff00;
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 12px;
+            color: #00ff00;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            background-color: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        button.active {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-buttons button {
+            flex: 1;
+        }
+
+        .keyboard-shortcuts {
+            font-size: 11px;
+            border-top: 1px solid #00ff00;
+            padding-top: 15px;
+            color: #888;
+        }
+
+        .keyboard-shortcuts div {
+            margin: 5px 0;
+        }
+
+        .keyboard-shortcuts strong {
+            color: #00ff00;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .controls-panel {
+                width: 100%;
+            }
+        }
+
+        .status {
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+            padding: 5px;
+            min-height: 20px;
+        }
+
+        .status.error {
+            color: #ff0000;
+        }
+
+        .status.success {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="title"></div>
+    
+    <div class="container">
+        <div class="main-display">
+            <div id="asciiCanvas"></div>
+            <div id="status" class="status"></div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <div class="control-label">Parlaklık</div>
+                <input type="range" id="brightness" min="-50" max="50" value="-30">
+                <div class="range-value"><span id="brightnessValue">-30</span></div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Metin Rengi</div>
+                <input type="color" id="textColor" value="#00ff00">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Arka Plan</div>
+                <input type="color" id="bgColor" value="#000000">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Dışa Aktar Formatı</div>
+                <div class="button-group">
+                    <button id="exportTxt" >[ ] .txt</button>
+                    <button id="exportJpg">[ ] .jpg</button>
+                </div>
+                <div class="button-group">
+                    <button id="exportPng">[ ] .png</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="button-group">
+                    <button id="captureBtn" style="flex: 1;">[ ] Fotoğraf</button>
+                </div>
+            </div>
+
+            <div class="keyboard-shortcuts">
+                <strong>⌨ KLAVYE</strong>
+                <div><strong>SPACE</strong> - Fotoğraf</div>
+                <div><strong>S</strong> - Kaydet</div>
+                <div><strong>R</strong> - Sıfırla</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gizli elementler -->
+    <video id="video" class="hidden-elements" autoplay playsinline></video>
+    <canvas id="tempCanvas" class="hidden-elements"></canvas>
+
+    <script src="ascii.js"></script>
+</body>
+</html>
