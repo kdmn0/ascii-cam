@@ -1,5 +1,5 @@
 // ASCII Karakterler - parlaklığa göre sıralanmış (açık → koyu)
-const ASCII_CHARS = ' .,;:=|!/+*#%@█';
+const ASCII_CHARS = ' .,;:=|!/+*#%@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ';
 
 // DOM Elementleri
 const video = document.getElementById('video');
